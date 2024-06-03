@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Data.Context;
 
@@ -15,6 +16,13 @@ public sealed class QuestionnaireContext : DbContext
         : base(options)
     {
         Database.EnsureCreated();
+    }
+    
+    public void OnModelCreating(EntityTypeBuilder<Answer> builder)
+    {
+        builder.HasIndex(a => a.QuestionId)
+            .HasDatabaseName("IX_re_answers_question_id1")
+            .IsUnique(false);
     }
 
     public QuestionnaireContext() { }

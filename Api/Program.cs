@@ -3,6 +3,7 @@ using Business.Result;
 using Business.Survey;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
+using QuestionnaireApi.Dbinit;
 using IResult = Business.Result.IResult;
 
 namespace QuestionnaireApi;
@@ -26,9 +27,12 @@ public class Program
         var connection = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<QuestionnaireContext>(options =>
             options.UseNpgsql(connection));
+        
+        builder.Services.AddTransient<IDbInit, DbInit>();
+        builder.Services.AddSingleton<IHostedService, StartupTask>();
 
         var app = builder.Build();
-        
+
         app.UseStaticFiles();
 
         app.UseRouting();

@@ -1,23 +1,26 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 13003
+EXPOSE 8082
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["QuestionnaireApi/QuestionnaireApi.csproj", "QuestionnaireApi/"]
-RUN dotnet restore "QuestionnaireApi/QuestionnaireApi.csproj"
+COPY ["Api/Api.csproj", "Api/"]
+COPY ["Data/Data.csproj", "Data/"]
+COPY ["Core/Core.csproj", "Core/"]
+COPY ["Business/Business.csproj", "Business/"]
+RUN dotnet restore "Api/Api.csproj"
 COPY . .
-WORKDIR "/src/QuestionnaireApi"
-RUN dotnet build "QuestionnaireApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/Api"
+RUN dotnet build "Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "QuestionnaireApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "QuestionnaireApi.dll"]
+ENTRYPOINT ["dotnet", "Api.dll"]
